@@ -9,6 +9,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
  final TextEditingController  _glassNoTEController = TextEditingController(text:'1');
+ List<WaterTrack>waterTrackList =[];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,8 +19,12 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Column(
      crossAxisAlignment:CrossAxisAlignment.center,
         children: [
-          const Text("12"),
-          const Text("Glasses"),
+          Column(
+            children: [
+              Text(getTotalGlassCount().toString(),),
+              const Text("Glasses"),
+            ],
+          ),
           Row(
             mainAxisAlignment:MainAxisAlignment.center,
             children: [
@@ -30,21 +36,58 @@ class _HomeScreenState extends State<HomeScreen> {
                 textAlign: TextAlign.center,
               ),
             ),
-              TextButton(onPressed: (){},
+              TextButton(onPressed: _addNewWaterTrack,
                   child: const Text("Add")),
             ],
           ),
           const SizedBox(height: 16,),
           Expanded(
-            child: ListView.separated(itemBuilder: (context,index){return ListTile(
-              title: const Text("Time"),
-              subtitle: const Text("Date"),
-              leading: const Text("1"),
-              trailing: IconButton(onPressed: (){}, icon: const Icon(Icons.delete)),
+
+            child: ListView.separated(
+              itemCount: waterTrackList.length,
+              itemBuilder: (context,index){
+              final WaterTrack waterTrack = waterTrackList[index];
+              return ListTile(
+              title: Text('${waterTrack.dateTime.hour}:${waterTrack.dateTime.minute}'),
+              subtitle:  Text('${waterTrack.dateTime.day}/${waterTrack.dateTime.month}/${waterTrack.dateTime.year}'),
+              leading: CircleAvatar(child: Text('${waterTrack.noOfGlasses}')),
+              trailing: IconButton(onPressed:() => _onTapDeleteButton (index), icon: const Icon(Icons.delete)),
             );},
               separatorBuilder: (context,index){return const Divider();},
-              itemCount: 3),)
+             ),)
         ],
       ),
     );}
+ void _onTapDeleteButton(int index){
+    waterTrackList.removeAt(index);
+    setState(() {
+
+    });
+ }
+ int getTotalGlassCount(){
+    int counter =0;
+    for (WaterTrack t in waterTrackList){
+      counter += t.noOfGlasses;
+    }
+    return counter;
+ }
+  void _addNewWaterTrack(){
+ if (_glassNoTEController.text.isEmpty){
+   _glassNoTEController.text="1";
+ }
+    final int  noOfGlasses = int.tryParse(_glassNoTEController.text)?? 1;
+WaterTrack waterTrack = WaterTrack(noOfGlasses: noOfGlasses,
+ dateTime: DateTime.now(),);
+waterTrackList.add(waterTrack);
+setState(() {
+
+});
+  }
+
+}
+
+class WaterTrack{
+  final int noOfGlasses;
+  final DateTime dateTime;
+  WaterTrack({required this.noOfGlasses, required this.dateTime});
 }
